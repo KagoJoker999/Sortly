@@ -1534,25 +1534,58 @@ initializeZeroStockUpload();
 // 清空数据库内容
 async function clearDatabase() {
     try {
-        // 发送请求清空数据库
-        const response = await fetch('https://ddejqskjoctdtqeqijmn.supabase.co/rest/v1/product_status', {
-            method: 'POST',
+        // 获取所有记录的ID
+        const getResponse = await fetch('https://ddejqskjoctdtqeqijmn.supabase.co/rest/v1/product_status?select=id', {
+            method: 'GET',
             headers: {
                 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWpxc2tqb2N0ZHRxZXFpam1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU5Njc3OTYsImV4cCI6MjA1MTU0Mzc5Nn0.bJ1YJWc-k26mJDggN9qf8b0Da1vhWJXMonVAbPYtSNM',
-                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWpxc2tqb2N0ZHRxZXFpam1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU5Njc3OTYsImV4cCI6MjA1MTU0Mzc5Nn0.bJ1YJWc-k26mJDggN9qf8b0Da1vhWJXMonVAbPYtSNM',
-                'Content-Type': 'application/json',
-                'Prefer': 'return=minimal'
-            },
-            body: JSON.stringify({
-                selected_products: [],
-                highlighted_products: [],
-                product_scores: {},
-                last_update: new Date().toISOString()
-            })
+                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWpxc2tqb2N0ZHRxZXFpam1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU5Njc3OTYsImV4cCI6MjA1MTU0Mzc5Nn0.bJ1YJWc-k26mJDggN9qf8b0Da1vhWJXMonVAbPYtSNM'
+            }
         });
 
-        if (!response.ok) {
-            throw new Error('清空数据库失败: ' + response.statusText);
+        if (!getResponse.ok) {
+            throw new Error('获取数据库记录失败: ' + getResponse.statusText);
+        }
+
+        const records = await getResponse.json();
+        
+        if (records.length > 0) {
+            // 删除所有记录
+            for (const record of records) {
+                const deleteResponse = await fetch(`https://ddejqskjoctdtqeqijmn.supabase.co/rest/v1/product_status?id=eq.${record.id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWpxc2tqb2N0ZHRxZXFpam1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU5Njc3OTYsImV4cCI6MjA1MTU0Mzc5Nn0.bJ1YJWc-k26mJDggN9qf8b0Da1vhWJXMonVAbPYtSNM',
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWpxc2tqb2N0ZHRxZXFpam1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU5Njc3OTYsImV4cCI6MjA1MTU0Mzc5Nn0.bJ1YJWc-k26mJDggN9qf8b0Da1vhWJXMonVAbPYtSNM',
+                        'Prefer': 'return=minimal'
+                    }
+                });
+
+                if (!deleteResponse.ok) {
+                    throw new Error('清空数据库失败: ' + deleteResponse.statusText);
+                }
+            }
+            
+            // 添加一条新的空记录
+            const insertResponse = await fetch('https://ddejqskjoctdtqeqijmn.supabase.co/rest/v1/product_status', {
+                method: 'POST',
+                headers: {
+                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWpxc2tqb2N0ZHRxZXFpam1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU5Njc3OTYsImV4cCI6MjA1MTU0Mzc5Nn0.bJ1YJWc-k26mJDggN9qf8b0Da1vhWJXMonVAbPYtSNM',
+                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZWpxc2tqb2N0ZHRxZXFpam1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU5Njc3OTYsImV4cCI6MjA1MTU0Mzc5Nn0.bJ1YJWc-k26mJDggN9qf8b0Da1vhWJXMonVAbPYtSNM',
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=minimal'
+                },
+                body: JSON.stringify({
+                    selected_products: [],
+                    highlighted_products: [],
+                    product_scores: {},
+                    last_update: new Date().toISOString()
+                })
+            });
+            
+            if (!insertResponse.ok) {
+                throw new Error('创建新记录失败: ' + insertResponse.statusText);
+            }
         }
 
         // 清空本地存储
