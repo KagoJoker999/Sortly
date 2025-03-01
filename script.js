@@ -1654,12 +1654,12 @@ async function writeSelectedProductsToDocument() {
         });
         
         // 创建一个Blob对象
-        const blob = new Blob([fileContent], { type: 'text/markdown' });
+        const blob = new Blob([fileContent], { type: 'text/plain' });
         
         // 创建一个下载链接
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = 'jieguo.md';
+        a.download = 'jieguo.txt';
         
         // 触发下载
         document.body.appendChild(a);
@@ -1669,9 +1669,9 @@ async function writeSelectedProductsToDocument() {
         document.body.removeChild(a);
         URL.revokeObjectURL(a.href);
         
-        showToast('已将选中产品信息写入到文档', 'success');
+        showToast('已将选中产品信息导出为文本文件', 'success');
     } catch (error) {
-        console.error('写入文档失败:', error);
-        showToast('写入文档失败: ' + error.message, 'error');
+        console.error('导出文本失败:', error);
+        showToast('导出文本失败: ' + error.message, 'error');
     }
 } 
