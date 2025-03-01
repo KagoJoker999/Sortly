@@ -1614,4 +1614,64 @@ async function clearDatabase() {
         console.error('清空数据库失败:', error);
         showToast('清空数据库失败: ' + error.message, 'error');
     }
+}
+
+// 将选中的产品信息写入到文档中
+async function writeSelectedProductsToDocument() {
+    try {
+        // 获取选中的产品
+        const selectedProducts = JSON.parse(localStorage.getItem('selectedProducts') || '[]');
+        
+        if (selectedProducts.length === 0) {
+            showToast('没有选中的产品', 'warning');
+            return;
+        }
+        
+        // 收集选中产品的详细信息
+        const productDetails = [];
+        document.querySelectorAll('.product-row').forEach(row => {
+            const productName = row.dataset.productName;
+            if (selectedProducts.includes(productName)) {
+                // 获取产品的所有单元格数据
+                const cells = row.querySelectorAll('td');
+                const productInfo = {
+                    name: productName,
+                    id: cells[4].textContent,
+                    efficiencyScore: cells[5].textContent,
+                    exposureScore: cells[6].textContent,
+                    conversionScore: cells[7].textContent,
+                    transactionScore: cells[8].textContent,
+                    rankingScore: cells[9].textContent
+                };
+                productDetails.push(productInfo);
+            }
+        });
+        
+        // 构建要写入文件的内容
+        let fileContent = '';
+        productDetails.forEach(product => {
+            fileContent += `产品名称: ${product.name}, ID: ${product.id}, 效率分: ${product.efficiencyScore}, 曝光分: ${product.exposureScore}, 转化分: ${product.conversionScore}, 交易分: ${product.transactionScore}, 综合分: ${product.rankingScore}\n`;
+        });
+        
+        // 创建一个Blob对象
+        const blob = new Blob([fileContent], { type: 'text/markdown' });
+        
+        // 创建一个下载链接
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'jieguo.md';
+        
+        // 触发下载
+        document.body.appendChild(a);
+        a.click();
+        
+        // 清理
+        document.body.removeChild(a);
+        URL.revokeObjectURL(a.href);
+        
+        showToast('已将选中产品信息写入到文档', 'success');
+    } catch (error) {
+        console.error('写入文档失败:', error);
+        showToast('写入文档失败: ' + error.message, 'error');
+    }
 } 
